@@ -1,4 +1,4 @@
-package com.hou.videorecruitment.myapplication;
+package com.android.view.waveprogress;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -24,23 +25,24 @@ import android.view.View;
  * Created by hmj on 17/5/2.
  */
 
-public class WaveProgress extends View {
+public class WaveProgressView extends View {
 
 
     private Paint mSrcPaint,//源像素画笔
             mDstPaint,//目标像素画笔
             mTextPaint;// 字体的画笔
     private Path mPath;//路径
+//    private PorterDuffXfermode mMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);//遮挡的模式
     private PorterDuffXfermode mMode = new PorterDuffXfermode(PorterDuff.Mode.DST_IN);//遮挡的模式
     private Drawable mMaskDrawable;
 
     private float mWavesHeight;//水波纹的高度
 
-    public WaveProgress(Context context) {
+    public WaveProgressView(Context context) {
         this(context, null);
     }
 
-    public WaveProgress(Context context, @Nullable AttributeSet attrs) {
+    public WaveProgressView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -54,9 +56,6 @@ public class WaveProgress extends View {
     private int mProgress;//当前进度
     private int mWaveCount = 1;// 水波纹的数量
     private Bitmap mBitmap;//遮挡的位图
-
-
-
 
 
     private String mTextUnit = "%";//单位
@@ -92,19 +91,18 @@ public class WaveProgress extends View {
         mEveryHeight = mHeight / (float) mMaxProgress;
     }
 
-
     private void initAttrs(Context context, AttributeSet attrs) {
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.waveProgress);
-        mWaveColor = typedArray.getColor(R.styleable.waveProgress_wave_color, Color.GRAY);
-        mMaskDrawable = typedArray.getDrawable(R.styleable.waveProgress_wave_mask_src);
-        mProgressBackground = typedArray.getColor(R.styleable.waveProgress_wave_background, Color.WHITE);
-        mTextColor = typedArray.getColor(R.styleable.waveProgress_wave_text_color, Color.BLACK);
-        isWaterStart = typedArray.getBoolean(R.styleable.waveProgress_wave_started, true);
-        mProgress = typedArray.getInteger(R.styleable.waveProgress_wave_progress, 70);
-        mMaxProgress = typedArray.getInteger(R.styleable.waveProgress_wave_max_progress, 100);
-        mWavesHeight = typedArray.getDimension(R.styleable.waveProgress_waves_height, 50);
-        mTextSize = typedArray.getDimension(R.styleable.waveProgress_wave_text_size, 80);
-        mMoveSpeed = typedArray.getInteger(R.styleable.waveProgress_wave_move_speed, 5);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.WaveProgressView);
+        mWaveColor = typedArray.getColor(R.styleable.WaveProgressView_wave_color, Color.GRAY);
+        mMaskDrawable = typedArray.getDrawable(R.styleable.WaveProgressView_wave_mask_src);
+        mProgressBackground = typedArray.getColor(R.styleable.WaveProgressView_wave_background, Color.WHITE);
+        mTextColor = typedArray.getColor(R.styleable.WaveProgressView_wave_text_color, Color.BLACK);
+        isWaterStart = typedArray.getBoolean(R.styleable.WaveProgressView_wave_started, true);
+        mProgress = typedArray.getInteger(R.styleable.WaveProgressView_wave_progress, 70);
+        mMaxProgress = typedArray.getInteger(R.styleable.WaveProgressView_wave_max_progress, 100);
+        mWavesHeight = typedArray.getDimension(R.styleable.WaveProgressView_waves_height, 50);
+        mTextSize = typedArray.getDimension(R.styleable.WaveProgressView_wave_text_size, 80);
+        mMoveSpeed = typedArray.getInteger(R.styleable.WaveProgressView_wave_move_speed, 5);
     }
 
     /**
@@ -113,25 +111,29 @@ public class WaveProgress extends View {
      * @param drawable 指定的drawable
      * @return 返回bitmap图片
      */
-    public static Bitmap drawableToBitmap(Drawable drawable) {
+    public Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable == null)
             return null;
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+
+        int width = mWidth > 0 ? mWidth : drawable.getIntrinsicWidth();
+        int height = mHeight > 0 ? mHeight : drawable.getIntrinsicHeight()
+                ;
+        Bitmap bitmap = Bitmap.createBitmap(width, height, drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.setBounds(0, 0, width, height);
         drawable.draw(canvas);
         return bitmap;
     }
 
 
-    public WaveProgress(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public WaveProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
         initPaint();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public WaveProgress(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public WaveProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initAttrs(context, attrs);
         initPaint();
@@ -156,7 +158,7 @@ public class WaveProgress extends View {
         mTextPaint.setColor(mTextColor);
         mTextPaint.setTextSize(mTextSize);
         mPath = new Path();
-        mBitmap = drawableToBitmap(mMaskDrawable);
+
     }
 
     @Override
@@ -165,18 +167,42 @@ public class WaveProgress extends View {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (widthMode == MeasureSpec.EXACTLY) {
-            mWidth = widthSize;
-        }
-        if (heightMode == MeasureSpec.EXACTLY) {
-            mHeight = heightSize;
+//        if (widthMode == MeasureSpec.EXACTLY) {
+//            mWidth = widthSize;
+//        }
+//        if (heightMode == MeasureSpec.EXACTLY) {
+//            mHeight = heightSize;
+//        }
+        mWidth = widthSize;
+        mHeight = heightSize;
+        Log.e("TAG","widthSize = "+ widthSize);
+        Log.e("TAG","widthMeasureSpec = "+ widthMeasureSpec);
+        Log.e("TAG","heightMeasureSpec = "+ heightMeasureSpec);
+        Log.e("TAG","heightSize = "+ heightSize);
+        switch (widthMode){
+            case MeasureSpec.AT_MOST:
+                Log.e("TAG","MeasureSpec Mode AT_MOST");
+                break;
+            case MeasureSpec.EXACTLY:
+                Log.e("TAG","MeasureSpec Mode EXACTLY");
+                break;
+            case MeasureSpec.UNSPECIFIED:
+                Log.e("TAG","MeasureSpec Mode UNSPECIFIED");
+                break;
         }
         measureEveryHeight();
         // 保存对应的宽
         setMeasuredDimension(mWidth, mHeight);
+        if (isUpdateDrawable || mBitmap == null){
+            isUpdateDrawable = false;
+            mBitmap = drawableToBitmap(mMaskDrawable);
+        }
     }
+
+    private boolean isUpdateDrawable = false;
     protected void onDraw(Canvas canvas) {
-        if (mWavesMoveSpeed >= mWidth/2) {
+
+        if (mWavesMoveSpeed >= mWidth / 2) {
             mWavesMoveSpeed = 0;
         }
         mWavesMoveSpeed += mMoveSpeed;
@@ -186,10 +212,10 @@ public class WaveProgress extends View {
         //视图水波波浪
         for (int i = 0; i <= 2 * mWaveCount; i++) {
             //控制点的公式  (（1-2n）/ 2n  +  i/n) * mWidth
-            int contr = (int) (((1-2 * mWaveCount)/(float)(2* mWaveCount) + i / (float)mWaveCount) * mWidth);
+            int contr = (int) (((1 - 2 * mWaveCount) / (float) (2 * mWaveCount) + i / (float) mWaveCount) * mWidth);
             //结束点的公式 （(1-n + i）/n )*mWidth
-            int end = (int) ((1-mWaveCount + i)/(float)(mWaveCount) * mWidth);
-            mPath.cubicTo(contr + mWavesMoveSpeed * 2, mWavesHeight + mWaveAllHeight,contr + mWavesMoveSpeed * 2, mWaveAllHeight - mWavesHeight, end + mWavesMoveSpeed * 2, mWaveAllHeight);
+            int end = (int) ((1 - mWaveCount + i) / (float) (mWaveCount) * mWidth);
+            mPath.cubicTo(contr + mWavesMoveSpeed * 2, mWavesHeight + mWaveAllHeight, contr + mWavesMoveSpeed * 2, mWaveAllHeight - mWavesHeight, end + mWavesMoveSpeed * 2, mWaveAllHeight);
         }
 
         mPath.lineTo(mWidth, mHeight);
@@ -251,9 +277,10 @@ public class WaveProgress extends View {
      *
      * @param mMaskDrawable 遮罩的图片
      */
-    public void setmMaskDrawable(Drawable mMaskDrawable) {
+    public void setMaskDrawable(Drawable mMaskDrawable) {
         this.mMaskDrawable = mMaskDrawable;
-        drawableToBitmap(this.mMaskDrawable);
+        isUpdateDrawable = true;
+//        mBitmap = drawableToBitmap(this.mMaskDrawable);
     }
 
     /**
@@ -263,7 +290,7 @@ public class WaveProgress extends View {
      * @param resId   图片资源id
      */
     public void setMaskDrawable(Context context, int resId) {
-        setmMaskDrawable(ContextCompat.getDrawable(context, resId));
+        setMaskDrawable(ContextCompat.getDrawable(context, resId));
     }
 
     /**

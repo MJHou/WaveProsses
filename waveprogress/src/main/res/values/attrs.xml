@@ -1,2 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <declare-styleable name="WaveProgressView">
+        <!--水波纹进度的遮挡的图片-->
+        <attr name="wave_mask_src" format="reference" />
+        <!--&lt;!&ndash;水波纹进度的遮挡的图片宽&ndash;&gt;-->
+        <!--<attr name="wave_mask_width" format="dimension"/>-->
+        <!--&lt;!&ndash;水波纹进度的遮挡的图片高&ndash;&gt;-->
+        <!--<attr name="wave_mask_height" format="dimension"/>-->
+        <!--默认水波纹的进度-->
+        <attr name="wave_progress" format="integer" />
+        <attr name="wave_max_progress" format="integer" />
+        <!--默认水波纹的高度-->
+        <attr name="waves_height" format="dimension" />
+        <!--默认水波纹的颜色-->
+        <attr name="wave_background" format="color" />
+        <!--默认水波纹的颜色-->
+        <attr name="wave_color" format="color" />
+        <!--默认水波纹的数量-->
+        <attr name="wave_number" format="integer" />
+        <!--默认水波纹的是否开始滚动-->
+        <attr name="wave_started" format="boolean" />
+        <!--默认水波纹的移动速度-->
+        <attr name="wave_move_speed" format="integer" />
+        <!--进度字体颜色-->
+        <attr name="wave_text_color" format="integer" />
+        <!--进度的字体大小-->
+        <attr name="wave_text_size" format="integer" />
+    </declare-styleable>
+
+</resources>
